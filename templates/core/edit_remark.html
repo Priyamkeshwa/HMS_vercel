@@ -1,0 +1,30 @@
+{% extends 'core/base.html' %}
+{% block content %}
+<div class="container mt-5">
+  <div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+      <div class="card shadow-lg">
+        <div class="card-header bg-warning text-dark text-center">
+          <h3>Edit Remark</h3>
+        </div>
+        <div class="card-body">
+          <h5 class="mb-3">Prescription for: <b>{{ prescription.patient.user.username }}</b></h5>
+          <a href="{% url 'download_prescription' prescription.id %}" target="_blank" class="mb-3 d-block text-decoration-underline">View Prescription</a>
+          <form method="post" class="mt-3">
+            {% csrf_token %}
+            <div class="mb-3">
+              <label for="id_remark" class="form-label">Remark:</label>
+              <textarea name="remark" id="id_remark" class="form-control" rows="5" required autofocus placeholder="Update your feedback or instructions here...">{{ form.remark.value }}</textarea>
+            </div>
+            <button type="submit" class="btn btn-warning w-100">Update Remark</button>
+          </form>
+          <div class="mt-3 text-center">
+            <a href="{% url 'edit_remark' prescription.id %}?revert=1" class="btn btn-outline-danger">Revert to Pending</a>
+            <a href="{% url 'doctor_dashboard' %}" class="btn btn-link">Back to Dashboard</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %} 

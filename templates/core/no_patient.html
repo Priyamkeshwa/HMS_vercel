@@ -1,0 +1,12 @@
+{% extends 'core/base.html' %}
+{% block content %}
+<div class="container mt-5 text-center">
+  <div class="alert alert-warning">
+    <h4>Profile Not Found</h4>
+    <p>Your account does not have a patient profile.<br>
+    If you are a doctor/admin, please use the appropriate dashboard.<br>
+    If you believe this is a mistake, please contact support or register as a patient.</p>
+    <a href="{% url 'logout' %}" class="btn btn-danger mt-3">Logout</a>
+  </div>
+</div>
+{% endblock %} 

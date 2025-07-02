@@ -1,0 +1,105 @@
+{% extends 'core/base.html' %}
+{% block content %}
+<div class="container-fluid py-4">
+  <div class="row">
+    <!-- Sidebar for navigation (future expansion) -->
+    <nav class="col-md-2 d-none d-md-block bg-white border-end pe-0">
+      <div class="position-sticky pt-3">
+        <ul class="nav flex-column text-center">
+          <li class="nav-item mb-3">
+            <span class="fs-2 text-primary"><i class="fa-solid fa-user-md"></i></span>
+            <div class="fw-bold mt-2">Doctor</div>
+          </li>
+          <li class="nav-item mb-2">
+            <a class="nav-link active text-primary" href="{% url 'doctor_dashboard' %}"><i class="fa-solid fa-table-list me-2"></i>Dashboard</a>
+          </li>
+          <li class="nav-item mb-2">
+            <a class="nav-link text-danger" href="{% url 'logout' %}"><i class="fa-solid fa-sign-out-alt me-2"></i>Logout</a>
+          </li>
+        </ul>
+      </div>
+    </nav>
+    <main class="col-md-10 ms-sm-auto col-lg-10 px-md-4">
+      <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold mb-3 mb-md-0"><i class="fa-solid fa-stethoscope me-2"></i>Doctor Dashboard</h2>
+        <div class="d-flex gap-3">
+          <div class="card shadow-sm border-0 bg-light text-center px-3 py-2">
+            <div class="text-secondary small">Pending</div>
+            <div class="fs-5 fw-bold text-primary">{{ pending_count }}</div>
+          </div>
+          <div class="card shadow-sm border-0 bg-light text-center px-3 py-2">
+            <div class="text-secondary small">Reviewed</div>
+            <div class="fs-5 fw-bold text-success">{{ done_count }}</div>
+          </div>
+        </div>
+      </div>
+      <div class="card shadow-sm mb-4">
+        <div class="card-header bg-primary text-white d-flex align-items-center">
+          <i class="fa-solid fa-file-medical me-2"></i>
+          <h4 class="mb-0">All Prescriptions</h4>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table align-middle table-hover">
+              <thead class="table-light">
+                <tr>
+                  <th>Patient</th>
+                  <th>File</th>
+                  <th>Uploaded At</th>
+                  <th>Reviewed At</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for prescription in prescriptions %}
+                <tr
+                  {% if prescription.status == 'done' and prescription.remark %}
+                    style="background-color: #e3f2fd;"  <!-- Blue for reviewed -->
+                  {% elif prescription.status == 'pending' and prescription.remark %}
+                    style="background-color: #fff9e6;"  <!-- Light yellow for reverted but has remark -->
+                  {% endif %}
+                >
+                  <td>
+                    <img src="https://cdn-icons-png.flaticon.com/512/2922/2922510.png" alt="avatar" class="avatar me-2">
+                    <span class="fw-semibold">{{ prescription.patient.user.username|title }}</span>
+                  </td>
+                  <td><a href="{% url 'download_prescription' prescription.id %}" target="_blank" class="text-decoration-underline">View</a></td>
+                  <td>{{ prescription.uploaded_at|date:"Y-m-d H:i" }}</td>
+                  <td>
+                    {% if prescription.remark %}
+                      {{ prescription.remark.created_at|date:"Y-m-d H:i" }}
+                    {% else %}
+                      N/A
+                    {% endif %}
+                  </td>
+                  <td>
+                    {% if prescription.status == 'pending' %}
+                      <span class="badge bg-secondary"><i class="fa-regular fa-hourglass-half me-1"></i>Pending</span>
+                    {% elif prescription.status == 'done' %}
+                      <span class="badge bg-success"><i class="fa-solid fa-check-circle me-1"></i>Done</span>
+                    {% endif %}
+                  </td>
+                  <td>
+                    {% if not prescription.remark %}
+                      <a href="{% url 'add_remark' prescription.id %}" class="btn btn-sm btn-primary" title="Add a new remark"><i class="fa-solid fa-plus me-1"></i>Add Remark</a>
+                    {% elif prescription.status == 'done' %}
+                      <a href="{% url 'edit_remark' prescription.id %}" class="btn btn-sm btn-warning" title="Edit the existing remark"><i class="fa-solid fa-pen-to-square me-1"></i>Edit Remark</a>
+                      <a href="{% url 'edit_remark' prescription.id %}?revert=1" class="btn btn-sm btn-outline-danger ms-2" title="Revert to pending and allow further edits"><i class="fa-solid fa-rotate-left me-1"></i>Revert to Pending</a>
+                    {% elif prescription.status == 'pending' and prescription.remark %}
+                      <a href="{% url 'edit_remark' prescription.id %}" class="btn btn-sm btn-warning" title="Edit the existing remark after revert"><i class="fa-solid fa-pen-to-square me-1"></i>Edit Remark</a>
+                    {% endif %}
+                  </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="6" class="text-center text-muted">No prescriptions found.</td></tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+{% endblock %} 

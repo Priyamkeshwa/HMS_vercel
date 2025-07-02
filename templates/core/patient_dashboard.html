@@ -1,0 +1,91 @@
+{% extends 'core/base.html' %}
+{% block content %}
+<div class="container py-4">
+  <div class="row mb-4">
+    <div class="col-12 col-md-8 mx-auto">
+      <div class="card shadow-sm mb-4 text-center" style="background: #e3f0ff;">
+        <div class="card-body d-flex flex-column flex-md-row align-items-center justify-content-center">
+          <img src="https://cdn-icons-png.flaticon.com/512/2922/2922510.png" alt="avatar" class="avatar me-3">
+          <div>
+            <h3 class="mb-1">Welcome, <span class="text-primary">{{ user.username|title }}</span>!</h3>
+            <p class="mb-0 text-muted">Manage your prescriptions and view your doctor's feedback here.</p>
+          </div>
+        </div>
+      </div>
+      <div class="card shadow-sm mb-4">
+        <div class="card-header bg-primary text-white d-flex align-items-center">
+          <i class="fa-solid fa-file-medical me-2"></i>
+          <h4 class="mb-0">Your Prescriptions</h4>
+        </div>
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <a href="{% url 'upload_prescription' %}" class="btn btn-success">
+              <i class="fa-solid fa-upload me-1"></i> Upload New Prescription
+            </a>
+            <a href="{% url 'logout' %}" class="btn btn-outline-danger"><i class="fa-solid fa-sign-out-alt me-1"></i>Logout</a>
+          </div>
+          <div class="table-responsive">
+            <table class="table align-middle table-hover">
+              <thead class="table-light">
+                <tr>
+                  <th scope="col"><i class="fa-solid fa-file-medical"></i> File</th>
+                  <th scope="col"><i class="fa-solid fa-calendar-plus"></i> Uploaded At</th>
+                  <th scope="col"><i class="fa-solid fa-stethoscope"></i> Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for prescription in prescriptions %}
+                <tr>
+                  <td><a href="{% url 'download_prescription' prescription.id %}" target="_blank" class="text-decoration-underline">View</a></td>
+                  <td>{{ prescription.uploaded_at|date:"Y-m-d H:i" }}</td>
+                  <td>
+                    {% if prescription.status == 'pending' %}
+                      <span class="badge bg-secondary"><i class="fa-regular fa-hourglass-half me-1"></i>Pending</span>
+                      <div class="progress mt-1" style="height: 6px;">
+                        <div class="progress-bar bg-secondary" role="progressbar" style="width: 40%"></div>
+                      </div>
+                    {% elif prescription.status == 'done' and prescription.remark %}
+                      {% if prescription.remark.remark|length > 40 %}
+                        <span class="badge bg-success" title="Click to view full remark" style="cursor:pointer;">
+                          <i class="fa-solid fa-check-circle me-1"></i>
+                          View Remark: {{ prescription.remark.remark|truncatechars:40 }}
+                          <button type="button" class="btn btn-link p-0 m-0 align-baseline text-white text-decoration-underline" data-bs-toggle="modal" data-bs-target="#remarkModal{{ prescription.id }}">(Full)</button>
+                        </span>
+                        <div class="progress mt-1" style="height: 6px;">
+                          <div class="progress-bar bg-success" role="progressbar" style="width: 100%"></div>
+                        </div>
+                        <!-- Modal -->
+                        <div class="modal fade" id="remarkModal{{ prescription.id }}" tabindex="-1" aria-labelledby="remarkModalLabel{{ prescription.id }}" aria-hidden="true">
+                          <div class="modal-dialog">
+                            <div class="modal-content">
+                              <div class="modal-header">
+                                <h5 class="modal-title" id="remarkModalLabel{{ prescription.id }}"><i class="fa-solid fa-user-md me-2"></i>Doctor's Remark</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                              </div>
+                              <div class="modal-body">
+                                {{ prescription.remark.remark }}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      {% else %}
+                        <span class="badge bg-success"><i class="fa-solid fa-check-circle me-1"></i>View Remark: {{ prescription.remark.remark }}</span>
+                        <div class="progress mt-1" style="height: 6px;">
+                          <div class="progress-bar bg-success" role="progressbar" style="width: 100%"></div>
+                        </div>
+                      {% endif %}
+                    {% endif %}
+                  </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="3" class="text-center text-muted">No prescriptions uploaded yet.</td></tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %} 
