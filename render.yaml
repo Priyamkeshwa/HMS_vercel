@@ -1,0 +1,20 @@
+services:
+  - type: web
+    name: hms-django
+    env: python
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "gunicorn hospitalmgmt.wsgi:application"
+    autoDeploy: true
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: hms-db
+          property: connectionString
+      - key: DJANGO_SECRET_KEY
+        generateValue: true
+      - key: DJANGO_DEBUG
+        value: False
+    migrationsCommand: "python manage.py migrate"
+databases:
+  - name: hms-db
+    plan: free
